@@ -9,44 +9,53 @@ class Turn
     @spoils_of_war = []
   end
 
+  def basic_type
+    player1.deck.rank_of_card_at(0) != player2.deck.rank_of_card_at(0) 
+  end
+
+  def war_type
+    player1.deck.rank_of_card_at(0) == player2.deck.rank_of_card_at(0) &&
+    player1.deck.rank_of_card_at(2) != player2.deck.rank_of_card_at(2)
+  end
+
+  def mutually_assured_destruction_type
+    player1.deck.rank_of_card_at(0) == player2.deck.rank_of_card_at(0) &&
+    player1.deck.rank_of_card_at(2) == player2.deck.rank_of_card_at(2)
+  end
+
   def type
-    if player1.deck.rank_of_card_at(0) == player2.deck.rank_of_card_at(0) &&
-      player1.deck.rank_of_card_at(2) == player2.deck.rank_of_card_at(2)
+    if mutually_assured_destruction_type
       :mutually_assured_destruction
-    elsif player1.deck.rank_of_card_at(0) == player2.deck.rank_of_card_at(0) &&
-      player1.deck.rank_of_card_at(2) != player2.deck.rank_of_card_at(2)
+    elsif war_type
       :war
-    elsif player1.deck.rank_of_card_at(0) != player2.deck.rank_of_card_at(0)
+    elsif basic_type
       :basic
     end
   end
 
   def winner
-    if player1.deck.rank_of_card_at(0) == player2.deck.rank_of_card_at(0) &&
-      player1.deck.rank_of_card_at(2) != player2.deck.rank_of_card_at(2)
+    if war_type
       if player1.deck.rank_of_card_at(2) > player2.deck.rank_of_card_at(2)
         player1
       else
         player2
     end
-    elsif player1.deck.rank_of_card_at(0) != player2.deck.rank_of_card_at(0)
+    elsif basic_type
       if player1.deck.rank_of_card_at(0) > player2.deck.rank_of_card_at(0)
         player1
       else
         player2
       end
-    elsif player1.deck.rank_of_card_at(0) == player2.deck.rank_of_card_at(0) &&
-      player1.deck.rank_of_card_at(2) == player2.deck.rank_of_card_at(2)
+    elsif mutually_assured_destruction_type
       "No Winner"
     end
   end
 
   def pile_cards
-    if player1.deck.rank_of_card_at(0) != player2.deck.rank_of_card_at(0)
+    if basic_type
       @spoils_of_war << player1.deck.remove_card
       @spoils_of_war << player2.deck.remove_card
-    elsif player1.deck.rank_of_card_at(0) == player2.deck.rank_of_card_at(0) &&
-      player1.deck.rank_of_card_at(2) != player2.deck.rank_of_card_at(2)
+    elsif war_type
       @spoils_of_war << player1.deck.cards.shift(3)
       @spoils_of_war << player2.deck.cards.shift(3)
       @spoils_of_war.flatten!
